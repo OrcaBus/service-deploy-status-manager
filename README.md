@@ -78,26 +78,28 @@ You will need to do this for both your stateless and stateful stacks (if applica
 
 This service has the following GET API endpoints which can be used to query the deployment status of services across the OrcaBus.
 
-* `/stackId/latest` - Returns the latest deployment status for the specified stack ID, including the:
+* `/api/v1/deployStatus/listStacks`  - List all stacks in the registry
+* `/api/v1/deployStatus/getAllStacksSummary` - Return a summary of all stacks and their most recent cloud formation events
+* `/api/v1/deployStatus/{stackId}/latest` - Returns the latest deployment status for the specified stack ID, including the:
   * stackName
   * gitCommitId,
   * deployStatus (e.g., `CREATE_COMPLETE`, `UPDATE_IN_PROGRESS`), and
   * modificationTimeStamp
-* `/stackId/events` - Returns a paginated history of deployment events for the specified stack ID, including the same details as above for each event.
-* `/stackId/events/eventId` - Returns details for a specific deployment event, identified by `eventId`.
-* `/services` - Returns a non-paginated list of all services being tracked
-* `/servicesSummary` - Returns a non-paginated summary of all services being tracked, including the latest deployment status for each service.
+* `/api/v1/deployStatus/{stackId}/events` - Returns a paginated history of deployment events for the specified stack ID, including the same details as above for each event.
+* `/api/v1/deployStatus/{stackId}/events/{eventId}` - Returns details for a specific deployment event, identified by `eventId`.
 
-We have one POST endpoint (for internal service-use only):
+We have one POST endpoint (for internal service-use only and hidden from view):
 
-* `/addStackEvent`
+* `/api/v1/deployStatus/addStackEvent`
   * This endpoint is used internally by the service to add a new deployment event to the service's data store.
   * It is not intended for external use. The endpoint accepts a JSON payload with the following structure:
   ```json
   {
+    "stackId": "string",
     "stackName": "string",
+    "eventId": "string",
+    "stackStatus": "string",
     "gitCommitId": "string",
-    "deployStatus": "string",
     "modificationTimestamp": "string"
   }
   ```
