@@ -49,25 +49,23 @@ CloudFormation automatically sends events to EventBridge on stack creation, upda
 By filtering for these events, this service can maintain an up-to-date inventory of all
 deployed services, their versions, and deployment status.
 
-In order to ensure that your microservice is tracked by this service, please include the following CloudFormation
-outputs in your service's CDK stack:
+In order to ensure that your microservice is tracked by this service,
+your application stack will need to be an extension of 'GitStack'.
+The following shows an example of an application stack that follows this logic:
 
 ```ts
-// Available in platform-constructs version 1.3.0 or higher
-import {addGitCommitIdOutput} from '@orcabus/platform-cdk-constructs/utils';
+// Available in platform-constructs version 1.7.0 or higher
+import { GitStack } from '@orcabus/platform-cdk-constructs/deployment-stack-pipeline';
+
+// Your stack config
+export type StatelessApplicationStackProps = StatelessApplicationStackConfig & cdk.StackProps;
 
 // Application Stack
-export class ApplicationStack extends cdk.Stack {
+export class ApplicationStack extends GitStack {
   public readonly stageName: StageName;
-  constructor(scope: Construct, id: string, props: ApplicationStackProps) {
+  constructor(scope: Construct, id: string, props: StatelessApplicationStackProps) {
     super(scope, id, props);
-
-    /**
-    ADD THIS OUTPUT TO YOUR STACK TO ENABLE DEPLOYMENT TRACKING
-     */
-    addGitCommitIdOutput(this);
-
-    // ... rest of your stack code
+    // your stack code as normal
   }
 }
 ```
@@ -149,7 +147,7 @@ Infrastructure is managed via CDK. This template provides two types of CDK entry
 
 **Step Functions**
 
-- **`AddCfEventToSqsQueue`** - Because our event rules are in a different stack to our sqs queue, we have to use another service to parse 
+- **`AddCfEventToSqsQueue`** - Because our event rules are in a different stack to our sqs queue, we have to use another service to parse
     data between the rule and the queue.
 
 - **`ProcessCfEvent`** - Step Functions state machine that processes deployment events.
