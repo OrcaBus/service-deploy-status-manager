@@ -1,4 +1,4 @@
-Hello World Service
+Service Deploy Status Manager
 ================================================================================
 
 - [Hello World Service](#hello-world-service)
@@ -39,125 +39,88 @@ Hello World Service
   - [Glossary \& References](#glossary--references)
 
 
-New Here? Start Here
+Description
 --------------------------------------------------------------------------------
 
-If you are not familiar with AWS, Lambda, EventBridge, or CDK, read the beginner guide first:
+This service is set up to track deployments of microservices across the OrcaBus.
+Head to the API endpoint [https://deploy-status.umccr.org](https://deploy-status.umccr.org) to see the current deployment status of all services being tracked by this service.
 
-- [`docs/beginner-guide.md`](docs/beginner-guide.md)
+CloudFormation automatically sends events to EventBridge on stack creation, update, and deletion.
+By filtering for these events, this service can maintain an up-to-date inventory of all
+deployed services, their versions, and deployment status.
 
-That guide explains:
+In order to ensure that your microservice is tracked by this service, please include the following CloudFormation
+outputs in your service's CDK stack:
 
-- what this service does in plain language
-- what "stack" means in this repository
-- how Lambda, EventBridge, IAM, and CDK fit together
-- how deployment works across toolchain and environment stacks
-- which files to read first
+```ts
+// Available in platform-constructs version 1.3.0 or higher
+import {addGitCommitIdOutput} from '@orcabus/platform-cdk-constructs/utils';
 
+// Application Stack
+export class ApplicationStack extends cdk.Stack {
+  public readonly stageName: StageName;
+  constructor(scope: Construct, id: string, props: ApplicationStackProps) {
+    super(scope, id, props);
 
-Using This Template
---------------------------------------------------------------------------------
+    /**
+    ADD THIS OUTPUT TO YOUR STACK TO ENABLE DEPLOYMENT TRACKING
+     */
+    addGitCommitIdOutput(this);
 
-This repository is a working example. To build a real service from it, go through the checklist below.
+    // ... rest of your stack code
+  }
+}
+```
 
-### 1. Rename the service
-
-| What | Where |
-| ---- | ----- |
-| Module directory name | Rename `app/hello_world/` to your service name |
-| Event source constant | `infrastructure/stage/constants.ts` → `OUTGOING_EVENT_SOURCE` |
-| Incoming event filter | `infrastructure/stage/constants.ts` → `INCOMING_WORKFLOW_NAME` |
-| Incoming event detail type | `infrastructure/stage/constants.ts` → `INCOMING_DETAIL_TYPE` |
-| CDK stack name | `bin/deploy.ts` → `'OrcaBusStatelessHelloWorldStack'` |
-
-### 2. Wire up the stateless pipeline
-
-In `infrastructure/toolchain/stateless-stack.ts`, update:
-
-- `githubRepo` — your new GitHub repository name
-- `stackName` — your CloudFormation stack name
-- `pipelineName` — your CodePipeline name (convention: `OrcaBus-Stateless{ServiceName}`)
-
-### 3. Decide on stateful infrastructure
-
-If your service needs databases, buckets, or queues: fill in the TODOs in `infrastructure/toolchain/stateful-stack.ts` and `bin/deploy.ts`.
-
-If not: delete `infrastructure/toolchain/stateful-stack.ts` and remove the `stateful` branch from `bin/deploy.ts`.
-
-### 4. Replace the Lambda logic
-
-- `app/hello_world/lambdas/handler.py` — replace the hello-world business logic
-- `app/hello_world/models.py` — replace the Pydantic models with your event shapes
-
-### 5. Update tests
-
-- `app/tests/conftest.py` — update the sample event fixture
-- `app/tests/test_handler.py` — rewrite tests for your handler
-- `test/stage.test.ts` — update CDK assertions to match your stack resources
-
-### 6. Update this README
-
-- Service name, description
-- Consumed and published events tables
-- Stateless resources list under [Stateless](#stateless)
-- Remove the [Using This Template](#using-this-template) section
-
-
-Service Description
---------------------------------------------------------------------------------
-
-### Name & responsibility
-
-**Hello World** — a minimal Lambda service template for the OrcaBus platform.
-
-### Description
-
-This service demonstrates the canonical pattern for an event-driven Lambda microservice on OrcaBus:
-
-1. An EventBridge rule filters `WorkflowRunStateChange` events from `orcabus.workflowmanager` for the `hello-world` workflow.
-2. The matching events trigger a Python Lambda function.
-3. The Lambda parses the incoming event using Pydantic models, extracts key fields, and emits a `HelloWorldEvent` back onto the `OrcaBusMain` event bus.
-
-Use this repository as a starting point when building a new auxiliary service that reacts to OrcaBus events.
+You will need to do this for both your stateless and stateful stacks (if applicable).
 
 ### API Endpoints
 
-This service does not expose any API endpoints. It is purely event-driven.
+This service has the following GET API endpoints which can be used to query the deployment status of services across the OrcaBus.
+
+* `/stackId/latest` - Returns the latest deployment status for the specified stack ID, including the:
+  * stackName
+  * gitCommitId,
+  * deployStatus (e.g., `CREATE_COMPLETE`, `UPDATE_IN_PROGRESS`), and
+  * modificationTimeStamp
+* `/stackId/events` - Returns a paginated history of deployment events for the specified stack ID, including the same details as above for each event.
+* `/stackId/events/eventId` - Returns details for a specific deployment event, identified by `eventId`.
+* `/services` - Returns a non-paginated list of all services being tracked
+* `/servicesSummary` - Returns a non-paginated summary of all services being tracked, including the latest deployment status for each service.
+
+We have one POST endpoint (for internal service-use only):
+
+* `/addStackEvent`
+  * This endpoint is used internally by the service to add a new deployment event to the service's data store.
+  * It is not intended for external use. The endpoint accepts a JSON payload with the following structure:
+  ```json
+  {
+    "stackName": "string",
+    "gitCommitId": "string",
+    "deployStatus": "string",
+    "modificationTimestamp": "string"
+  }
+  ```
 
 ### Consumed Events
 
-| Name / DetailType            | Source                    | Schema Link | Description                                                                                   |
-|------------------------------|---------------------------|-------------|-----------------------------------------------------------------------------------------------|
-| `WorkflowRunStateChange`     | `orcabus.workflowmanager` |             | Fired on every state transition of a workflow run. Filtered to `workflow.name = hello-world`. |
+Consumes CloudFormation events from default AWS eventbus.
 
 ### Published Events
 
-| Name / DetailType   | Source                | Schema Link | Description                                         |
-|---------------------|-----------------------|-------------|-----------------------------------------------------|
-| `HelloWorldEvent`   | `orcabus.helloworld`  |             | Emitted after successfully processing a WRSC event. |
+| Name / DetailType  | Source                        | Schema Link                                                          | Description                                                       |
+|--------------------|-------------------------------|----------------------------------------------------------------------|-------------------------------------------------------------------|
+| `StackStateChange` | `orcabus.deploystatusmanager` | [StackStateChange](app/event-schemas/stack-state-change.schema.json) | Emitted after successfully processing a stack state change event. |
 
 ### (Internal) Data states & persistence model
 
-This service is stateless. No data is persisted.
-
-### Major Business Rules
-
-- The Lambda only processes events for the `hello-world` workflow (enforced at the EventBridge rule level).
-- A failed `put_events` call (non-zero `FailedEntryCount`) raises a `RuntimeError`, causing the Lambda to fail and triggering the standard retry/DLQ behaviour.
-
-### Permissions & Access Control
-
-No authentication or authorisation controls apply. The service is triggered exclusively via EventBridge rules and does not expose any user-facing interface.
-
-### Change Management
-
-#### Versioning strategy
-
-Manual tagging of git commits following Semantic Versioning (semver) guidelines.
+We use a dynamodb table to store the deployment status of all stacks being tracked by the service.
+Each item in the table represents a deployment event for a specific stack.
 
 #### Release management
 
-The service employs a fully automated CI/CD pipeline that automatically builds and releases all changes to the `main` branch across `beta`, `gamma`, and `prod` environments.
+The service employs a fully automated CI/CD pipeline that automatically builds and releases all changes to the `main` branch
+across `beta`, `gamma`, and `prod` environments.
 
 
 Infrastructure & Deployment
@@ -167,12 +130,39 @@ Infrastructure is managed via CDK. This template provides two types of CDK entry
 
 ### Stateful
 
-This service has no stateful resources. The `StatefulStack` is kept as a placeholder — if a future version of this service requires databases, buckets, or queues, fill in the TODOs in `infrastructure/toolchain/stateful-stack.ts`.
+- **`DeployStatusApiDb`** - DynamoDB table with `stackId` as the partition key and `eventId` as the sort key.
+  - This table stores the deployment status of all stacks being tracked by the service.
+  - We also generate additional secondary indexes on the 'latest' event for each stack to enable efficient querying of the latest deployment status for each stack.
+- **`DeployStatusSqsQueue`** - SQS queue used as a dead letter queue for failed events that could not be processed and stored in the DynamoDB table.
+  - This ensures that we do not lose any deployment events and can investigate and reprocess failed events as needed.
 
 ### Stateless
 
-- **`HelloWorldFunction`** — Python 3.12 ARM64 Lambda, bundled via `PythonLayerVersion` from `app/requirements.txt`.
-- **`WorkflowRunStateChangeRule`** — EventBridge rule on `OrcaBusMain` that matches `WorkflowRunStateChange` events where `detail.workflow.name = hello-world`.
+**Non SFN Lambdas**
+
+- **`DeployStatusApi`** - API Gateway REST API with Lambda integration.
+  - This API exposes the endpoints described in the Service Description section above, allowing clients to query the deployment status of services across the OrcaBus.
+  - The API is also responsible for emitting `StackStateChange` events to EventBridge after successfully processing deployment events and updating the DynamoDB table.
+- **`DeployStatusEventHandler`** - Use a Durable Lambda function to process incoming CloudFormation events from EventBridge, extract relevant information, and store it in the DynamoDB table.
+  - The event handler then calls AWS Step Functions to orchestrate the processing of the event, including any necessary retries and error handling
+
+**Step Functions**
+
+- **`DeployStatusEventProcessor`** - Step Functions state machine that processes deployment events.
+  - This state machine is triggered by the `DeployStatusEventHandler` Lambda function and is responsible for orchestrating the processing of deployment events, including any necessary retries and error handling.
+  - Using Step Functions allows us to manage complex event processing logic and ensure that events are processed reliably, even in the face of transient errors or failures.
+  - We call the following lambdas inside the AWS Step Functions:
+    - Add stack event to DynamoDB table via the API endpoint (`/addStackEvent`)
+    - Using the callbackId from the DeployStatusEventHandler lambda, we can release the event handler from waiting allowing it to process the next event.
+
+**EventBridge**
+
+- **`CloudFormationEventRule`** - EventBridge rule that filters for CloudFormation events related to stack creation, update, and deletion.
+  - This rule triggers the `DeployStatusEventHandler` Lambda function whenever a relevant CloudFormation event occurs, ensuring that the service maintains an up-to-date inventory of all deployed services and their deployment status.
+
+**Miscell Service Glue**
+
+- Sqs Event Source to link the `DeployStatusEventHandler` Lambda function to the `DeployStatusSqsQueue` SQS queue, ensuring that any failed events are captured and can be reprocessed as needed.
 
 ### CDK Commands
 
@@ -183,42 +173,13 @@ You can access CDK commands using the `pnpm` wrapper script.
 
 The type of stack to deploy is determined by the context set in the `./bin/deploy.ts` file.
 
-All deployments go through the `DeploymentStackPipeline` construct, which handles cross-account role assumptions and applies the correct per-environment configuration from `config.ts`. Use the pipeline sub-stack path shown below.
-
-Pattern:
-```sh
-# Deploy a stateless stack
-pnpm cdk-stateless deploy -e <stackname>
-```
-
-Examples:
-```sh
-# Deploy the toolchain pipeline stack (sets up CodePipeline in the bastion account)
-pnpm cdk-stateless deploy -e OrcaBusStatelessHelloWorldStack
-
-# Manually deploy the HelloWorld stack to the beta (dev) environment
-pnpm cdk-stateless deploy OrcaBusStatelessHelloWorldStack/DeploymentPipeline/OrcaBusBeta/HelloWorldStack -e
-```
-
-### Stacks
-
-This CDK project manages multiple stacks. The root stack (the only one that does not include `DeploymentPipeline` in its stack ID) is deployed in the toolchain account and sets up a CodePipeline for cross-environment deployments to `beta`, `gamma`, and `prod`.
-
-To list all available stacks, run:
+You can list all available stacks using:
 
 ```sh
-pnpm cdk-stateless ls
+pnpm cdk-stateful list
+pnpm cdk-stateless list
+# :FIXME: update this to include cdk-stateless once we have stateless resources defined
 ```
-
-Example output:
-
-```sh
-OrcaBusStatelessHelloWorldStack
-OrcaBusStatelessHelloWorldStack/DeploymentPipeline/OrcaBusBeta/HelloWorldStack  (OrcaBusBeta-HelloWorldStack)
-OrcaBusStatelessHelloWorldStack/DeploymentPipeline/OrcaBusGamma/HelloWorldStack (OrcaBusGamma-HelloWorldStack)
-OrcaBusStatelessHelloWorldStack/DeploymentPipeline/OrcaBusProd/HelloWorldStack  (OrcaBusProd-HelloWorldStack)
-```
-
 
 Development
 --------------------------------------------------------------------------------
@@ -237,7 +198,8 @@ The project is organized into the following key directories:
   - **`./infrastructure/toolchain`**: Includes stacks for the stateless and stateful resources deployed in the toolchain account. These stacks primarily set up the CodePipeline for cross-environment deployments.
   - **`./infrastructure/stage`**: Defines the stage stacks for different environments:
     - **`./infrastructure/stage/config.ts`**: Contains environment-specific configuration files (e.g., `beta`, `gamma`, `prod`).
-    - **`./infrastructure/stage/deployment-stack.ts`**: The CDK stack entry point for provisioning resources required by the application in `./app`.
+    - **`./infrastructure/stage/stateless-application-stack.ts`**: The stateless CDK stack entry point for provisioning resources required by the application in `./app`.
+    - **`./infrastructure/stage/stateful-application-stack.ts`**: The stateful CDK stack entry point for provisioning resources required by the application in `./app`.
 
 - **`.github/workflows/pr-tests.yml`**: Configures GitHub Actions to run tests for `make check` (linting and code style), tests defined in `./test`, and `make test` for the `./app` directory. Modify this file as needed to ensure the tests are properly configured for your environment.
 
