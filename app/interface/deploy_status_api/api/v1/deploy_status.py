@@ -32,7 +32,7 @@ from ...models.stack_query import StackQueryParameters
 from ...models.stack_event import StackEventResponseDict, StackPostEvent
 from ...models.stack_summary import StackSummaryResponseDict
 from ...utils import (
-    get_default_post_entry
+    get_default_post_entry, get_latest_event_for_stack_synced
 )
 from ...events.events import put_stack_event_analysis_update_event
 from ...utils import sanitise_stack_id, sanitise_event_orcabus_id
@@ -120,20 +120,9 @@ async def get_all_stacks_summary(
             "stackOrcabusId": stack_iter_.orcabus_id,
             "stackId": stack_iter_.stack_id,
             "stackName": stack_iter_.stack_name,
-            **map(
-                lambda event_iter_: dict(filter(
-                    lambda kv_iter_: kv_iter_[1] is not None,
-                    {
-                        "eventOrcabusId": event_iter_.orcabus_id,
-                        "status": event_iter_.status,
-                        "modificationTimestamp": event_iter_.modification_timestamp,
-                        "gitCommitId": (event_iter_.git_commit_id if event_iter_.git_commit_id is not None else None),
-                    }.items()
-                )),
-                EventData.get(
-                    stack_iter_.latest_event_id,
-                    range_key=stack_iter_.stack_name
-                )
+            **get_latest_event_for_stack_synced(
+                latest_event_id=stack_iter_.latest_event_id,
+                stack_name=stack_iter_.stack_name,
             )
         },
         stack_list
