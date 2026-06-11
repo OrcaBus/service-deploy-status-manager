@@ -58,12 +58,12 @@ The following shows an example of an application stack that follows this logic:
 import { GitStack } from '@orcabus/platform-cdk-constructs/deployment-stack-pipeline';
 
 // Your stack config
-export type StatelessApplicationStackProps = StatelessApplicationStackConfig & cdk.StackProps;
+export type ApplicationStackProps = ApplicationStackConfig & cdk.StackProps;
 
 // Application Stack
 export class ApplicationStack extends GitStack {
   public readonly stageName: StageName;
-  constructor(scope: Construct, id: string, props: StatelessApplicationStackProps) {
+  constructor(scope: Construct, id: string, props: ApplicationStackProps) {
     super(scope, id, props);
     // your stack code as normal
   }
