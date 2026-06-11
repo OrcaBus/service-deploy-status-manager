@@ -233,6 +233,7 @@ async def get_stack_event(
 @router.post(
     '/addStackEvent',
     tags=["post"],
+    include_in_schema=False,
 )
 async def add_stack_event(
     stack_event_object: Annotated[StackPostEvent, Body()] = get_default_post_entry()
