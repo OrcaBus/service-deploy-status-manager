@@ -132,9 +132,8 @@ Infrastructure is managed via CDK. This template provides two types of CDK entry
 
 ### Stateful
 
-- **`DeployStatusApiDb`** - DynamoDB table with `stackId` as the partition key and `eventId` as the sort key.
-  - This table stores the deployment status of all stacks being tracked by the service.
-  - We also generate additional secondary indexes on the 'latest' event for each stack to enable efficient querying of the latest deployment status for each stack.
+- **`DeployStatusStackTable`** - DynamoDb table with the status orcabus id as the partition key and no sort key
+- **`DeployStatusEventTable`** - DynamoDb table with the event orcabus id as the partition key and stack name as the sort key.
 - **`DeployStatusSqsQueue`** - SQS queue used as a dead letter queue for failed events that could not be processed and stored in the DynamoDB table.
   - This ensures that we do not lose any deployment events and can investigate and reprocess failed events as needed.
 
