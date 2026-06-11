@@ -178,8 +178,24 @@ You can list all available stacks using:
 
 ```sh
 pnpm cdk-stateful list
+```
+
+```
+DeployStatusStatefulDeployStack
+DeployStatusStatefulDeployStack/DeployStatusStatefulDeployPipeline/OrcaBusBeta/DeployStatusStatefulDeployStack (OrcaBusBeta-DeployStatusStatefulDeployStack)
+DeployStatusStatefulDeployStack/DeployStatusStatefulDeployPipeline/OrcaBusGamma/DeployStatusStatefulDeployStack (OrcaBusGamma-DeployStatusStatefulDeployStack)
+DeployStatusStatefulDeployStack/DeployStatusStatefulDeployPipeline/OrcaBusProd/DeployStatusStatefulDeployStack (OrcaBusProd-DeployStatusStatefulDeployStack)
+```
+
+```sh
 pnpm cdk-stateless list
-# :FIXME: update this to include cdk-stateless once we have stateless resources defined
+```
+
+```
+DeployStatusStatelessDeployStack
+DeployStatusStatelessDeployStack/DeployStatusStatelessDeploymentPipeline/OrcaBusBeta/DeployStatusStatelessDeployStack (OrcaBusBeta-DeployStatusStatelessDeployStack)
+DeployStatusStatelessDeployStack/DeployStatusStatelessDeploymentPipeline/OrcaBusGamma/DeployStatusStatelessDeployStack (OrcaBusGamma-DeployStatusStatelessDeployStack)
+DeployStatusStatelessDeployStack/DeployStatusStatelessDeploymentPipeline/OrcaBusProd/DeployStatusStatelessDeployStack (OrcaBusProd-DeployStatusStatelessDeployStack)
 ```
 
 Development
