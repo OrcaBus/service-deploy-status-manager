@@ -50,11 +50,11 @@ By filtering for these events, this service can maintain an up-to-date inventory
 deployed services, their versions, and deployment status.
 
 In order to ensure that your microservice is tracked by this service,
-your application stack will need to be an extension of 'GitStack'.
+your application stack will need to be an extension of `GitStack`.
 The following shows an example of an application stack that follows this logic:
 
 ```ts
-// Available in platform-constructs version 1.7.0 or higher
+// Available in @orcabus/platform-cdk-constructs version 1.7.0 or higher
 import { GitStack } from '@orcabus/platform-cdk-constructs/deployment-stack-pipeline';
 
 // Your stack config
