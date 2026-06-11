@@ -70,7 +70,7 @@ class StackQueryParameters(BaseQueryParameters):
         if self.stack_name is not None and self.stack_name_list is not None:
             raise HTTPException(
                 status_code=400,
-                detail="Only one of stackId or stackIdList[] is allowed"
+                detail="Only one of stackName or stackNameList[] is allowed"
             )
         if self.stack_name is not None:
             self.stack_name_list = [self.stack_name]

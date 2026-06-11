@@ -46,7 +46,7 @@ describe('cdk-nag-stateless-toolchain-stack', () => {
 describe('cdk-nag-stateful-toolchain-stack', () => {
   const app = new App({});
 
-  // You should configure all stack (stateful, stateful) to be tested
+  // You should configure all stack (stateful, stateless) to be tested
   const statefulApplicationStack = new StatefulApplicationStack(app, 'statefulApplicationStack', {
     // Pick the prod environment to test as it is the most strict
     ...getStatefulStackProps(),

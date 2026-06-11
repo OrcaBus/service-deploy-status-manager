@@ -11,8 +11,7 @@ This is the list of routes available
 # Standard imports
 from typing import Annotated, List, cast
 
-from fastapi import Depends, Query, Body
-from fastapi.routing import APIRouter, HTTPException
+from fastapi import Depends, Query, Body, HTTPException, APIRouter
 from dyntastic import A
 
 from fastapi_tools import QueryPagination

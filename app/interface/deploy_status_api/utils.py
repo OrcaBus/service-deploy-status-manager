@@ -68,10 +68,6 @@ def datetime_to_isodate(dt: datetime) -> str:
     return dt.strftime("%Y-%m-%d")
 
 
-def datetime_to_hf_format(dt: datetime) -> str:
-    return f"{str(int(dt.strftime("%d")))} {dt.strftime("%b")}, {dt.strftime("%Y")}"
-
-
 def datetime_to_isoformat(dt: datetime) -> str:
     return dt.isoformat(sep="T", timespec="seconds").replace("+00:00", "Z")
 
@@ -125,9 +121,9 @@ def get_stack_orcabus_id_from_cfn_stack_id(stack_id: str) -> str:
     # Get all stacks
     from .models.stack import StackData
 
-    stack_obj_list = StackData.scan(
+    stack_obj_list = list(StackData.scan(
         filter_condition=A.stack_id == stack_id,
-    )
+    ))
 
     if len(stack_obj_list) == 0:
         raise ValueError(f"Could not find stack id {stack_id} in db")
