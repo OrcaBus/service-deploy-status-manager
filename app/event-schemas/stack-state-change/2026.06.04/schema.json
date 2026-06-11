@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "stackEventResponse": {
+      "type": "object",
+      "properties": {
+        "stackOrcabusId": {
+          "type": "string"
+        },
+        "stackId": {
+          "type": "string"
+        },
+        "stackName": {
+          "type": "string"
+        },
+        "eventOrcabusId": {
+          "type": "string"
+        },
+        "modificationTimestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "cfnOutputDict": {
+      "type": "object",
+      "properties": {
+        "gitCommitId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "CREATE_COMPLETE",
+            "ROLLBACK_COMPLETE",
+            "ROLLBACK_FAILED",
+            "UPDATE_COMPLETE",
+            "UPDATE_FAILED",
+            "UPDATE_ROLLBACK_COMPLETE",
+            "IMPORT_COMPLETE",
+            "IMPORT_ROLLBACK_FAILED",
+            "IMPORT_ROLLBACK_COMPLETE"
+          ]
+        }
+      }
+    },
+    "cfnWithoutOutputDict": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "CREATE_IN_PROGRESS",
+            "CREATE_FAILED",
+            "DELETE_COMPLETE",
+            "DELETE_FAILED",
+            "DELETE_IN_PROGRESS",
+            "REVIEW_IN_PROGRESS",
+            "ROLLBACK_IN_PROGRESS",
+            "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS",
+            "UPDATE_IN_PROGRESS",
+            "UPDATE_ROLLBACK_IN_PROGRESS",
+            "IMPORT_IN_PROGRESS",
+            "IMPORT_ROLLBACK_IN_PROGRESS"
+          ]
+        }
+      }
+    },
+    "detail": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/$defs/stackEventResponse"
+        },
+        {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/cfnOutputDict"
+            },
+            {
+              "$ref": "#/$defs/cfnWithoutOutputDict"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "eventBusName": {
+      "type": "string",
+      "enum": ["OrcaBusMain"]
+    },
+    "detail": {
+      "$ref": "#/$defs/detail"
+    },
+    "detailType": {
+      "type": "string",
+      "enum": ["StackStateChange"]
+    },
+    "source": {
+      "type": "string",
+      "enum": ["orcabus.deploystatus"]
+    }
+  },
+  "required": ["eventBusName", "detail", "detailType", "source"]
+}

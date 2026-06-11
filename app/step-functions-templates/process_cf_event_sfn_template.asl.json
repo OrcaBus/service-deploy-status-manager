@@ -1,0 +1,199 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Set env vars",
+  "States": {
+    "Set env vars": {
+      "Type": "Pass",
+      "Next": "Get inputs",
+      "Assign": {
+        "stackId": "{% $states.input.stackId %}",
+        "stackName": "{% $states.input.stackName %}",
+        "status": "{% $states.input.status %}",
+        "clientRequestToken": "{% $states.input.clientRequestToken %}",
+        "callbackId": "{% $states.input.callbackId %}"
+      }
+    },
+    "Get inputs": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "Get commit id from Stack",
+          "States": {
+            "Get commit id from Stack": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Arguments": {
+                "FunctionName": "${__get_commit_id_from_stack_lambda_function_arn__}",
+                "Payload": {
+                  "stackName": "{% $stackName %}"
+                }
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 1,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2,
+                  "JitterStrategy": "FULL"
+                }
+              ],
+              "End": true,
+              "Output": {
+                "gitCommitId": "{% $states.result.Payload.gitCommitId %}"
+              }
+            }
+          }
+        },
+        {
+          "StartAt": "Get stack orcabus id",
+          "States": {
+            "Get stack orcabus id": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Arguments": {
+                "FunctionName": "${__get_stack_orcabus_id_lambda_function_arn__}",
+                "Payload": {
+                  "stackName": "{% $stackName %}"
+                }
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 1,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2,
+                  "JitterStrategy": "FULL"
+                }
+              ],
+              "End": true,
+              "Output": {
+                "stackOrcabusId": "{% $states.result.Payload.stackOrcabusId %}"
+              }
+            }
+          }
+        },
+        {
+          "StartAt": "Get event id and timestamp",
+          "States": {
+            "Get event id and timestamp": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Arguments": {
+                "Payload": {
+                  "stackName": "{% $stackName %}",
+                  "status": "{% $status %}",
+                  "clientRequestToken": "{% $clientRequestToken %}"
+                },
+                "FunctionName": "${__get_event_id_and_timestamp_lambda_function_arn__}"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 1,
+                  "MaxAttempts": 3,
+                  "BackoffRate": 2,
+                  "JitterStrategy": "FULL"
+                }
+              ],
+              "End": true,
+              "Output": {
+                "eventId": "{% $states.result.Payload.eventId %}",
+                "timestamp": "{% $states.result.Payload.timestamp %}"
+              }
+            }
+          }
+        }
+      ],
+      "Next": "Add Stack event",
+      "Assign": {
+        "gitCommitId": "{% $states.result[0].gitCommitId %}",
+        "stackOrcabusId": "{% $states.result[1].stackOrcabusId %}",
+        "eventId": "{% $states.result[2].eventId %}",
+        "timestamp": "{% $states.result[2].timestamp %}"
+      }
+    },
+    "Add Stack event": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Output": "{% $states.result.Payload %}",
+      "Arguments": {
+        "FunctionName": "${__add_stack_event_lambda_function_arn__}",
+        "Payload": {
+          "stackId": "{% $stackId %}",
+          "stackName": "{% $stackName %}",
+          "gitCommitId": "{% $gitCommitId %}",
+          "stackStatus": "{% $status %}",
+          "modificationTimestamp": "{% $timestamp %}",
+          "eventId": "{% $eventId %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Next": "Update callback"
+    },
+    "Update callback": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Output": "{% $states.result.Payload %}",
+      "Arguments": {
+        "FunctionName": "${__update_callback_lambda_function_arn__}",
+        "Payload": {
+          "callbackId": "{% $callbackId %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "End": true,
+      "Catch": [
+        {
+          "ErrorEquals": ["CallbackTimeoutException"],
+          "Next": "Pass"
+        }
+      ]
+    },
+    "Pass": {
+      "Type": "Pass",
+      "End": true
+    }
+  },
+  "QueryLanguage": "JSONata"
+}

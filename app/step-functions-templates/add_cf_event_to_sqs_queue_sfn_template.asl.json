@@ -1,0 +1,21 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Send message to queue",
+  "States": {
+    "Send message to queue": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sqs:sendMessage",
+      "Arguments": {
+        "MessageBody": {
+          "stackId": "{% ($states.input.'stack-id' ~> $split('/'))[-1] %}",
+          "stackName": "{% ($states.input.'stack-id' ~> $split('/'))[-2] %}",
+          "status": "{% $states.input.'status-details'.status %}",
+          "clientRequestToken": "{% $states.input.'client-request-token' %}"
+        },
+        "QueueUrl": "${__sqs_queue_url__}"
+      },
+      "End": true
+    }
+  },
+  "QueryLanguage": "JSONata"
+}

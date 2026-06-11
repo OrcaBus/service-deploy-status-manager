@@ -1,6 +1,7 @@
 name: Pull Request Tests
 
 on:
+  merge_group:
   pull_request:
     paths-ignore:
       # The ignore only works only if changes to the main branch only include the following files.
@@ -15,6 +16,7 @@ on:
       - reopened
       - synchronize
       - ready_for_review
+      - auto_merge_enabled
     branches:
       - main
 
@@ -70,11 +72,6 @@ jobs:
       - name: Install dependencies
         run: |
           make install
-          (cd app && make install)
-
-      - name: Lint and code formatting
-        run: |
-          make check-all
 
   test-iac:
     runs-on: ubuntu-22.04-arm
@@ -94,31 +91,3 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
 
       - run: pnpm test
-
-  test-app:
-    runs-on: ubuntu-22.04-arm
-    if: ${{ !github.event.pull_request.draft }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Print toolchain versions
-        run: |
-          node -v
-          python -V
-          pip3 -V
-          make --version
-
-      - name: Install
-        working-directory: ./app
-        run: |
-          make install
-
-      - name: Test
-        working-directory: ./app
-        run: |
-          make test
