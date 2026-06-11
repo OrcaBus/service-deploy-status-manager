@@ -266,10 +266,6 @@ To install all required dependencies, run:
 make install
 ```
 
-#### First Steps
-
-Before using this template, search for all instances of `TODO:` comments in the codebase and update them as appropriate for your service. This includes replacing placeholder values (such as stack names, GitHub repo, and pipeline names).
-
 ### Conventions
 
 ### Linting & Formatting
@@ -284,12 +280,6 @@ To run linting and formatting checks on the root project, use:
 make check
 ```
 
-To also lint the app (Python), use `check-all` — this is what CI runs:
-
-```sh
-make check-all
-```
-
 To automatically fix issues with ESLint and Prettier, run:
 
 ```sh
@@ -301,10 +291,7 @@ make fix
 Unit tests are available for the Lambda handler and Pydantic models. Test code is hosted alongside business logic in `./app/tests/`.
 
 ```sh
-# Python unit tests (no Docker required)
-cd app && make test
-
-# CDK infrastructure tests (requires Docker Desktop to be running)
+# CDK infrastructure tests
 pnpm test
 ```
 
@@ -315,11 +302,3 @@ Glossary & References
 --------------------------------------------------------------------------------
 
 For general terms and expressions used across OrcaBus services, please see the platform [documentation](https://github.com/OrcaBus/wiki/blob/main/orcabus-platform/README.md#glossary--references).
-
-Service specific terms:
-
-| Term           | Description                                                                                        |
-|----------------|----------------------------------------------------------------------------------------------------|
-| WRSC           | `WorkflowRunStateChange` — OrcaBus event emitted by the Workflow Manager on every state transition |
-| `portalRunId`  | Unique identifier for a workflow run, used to correlate events across services                     |
-| `OrcaBusMain`  | The shared AWS EventBridge event bus used by all OrcaBus services                                  |

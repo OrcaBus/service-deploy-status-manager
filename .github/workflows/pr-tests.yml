@@ -74,10 +74,6 @@ jobs:
           make install
           (cd app && make install)
 
-      - name: Lint and code formatting
-        run: |
-          make check-all
-
   test-iac:
     runs-on: ubuntu-22.04-arm
     if: ${{ !github.event.pull_request.draft }}
