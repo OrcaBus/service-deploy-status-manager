@@ -110,9 +110,9 @@ Consumes CloudFormation events from default AWS eventbus.
 
 ### Published Events
 
-| Name / DetailType  | Source                        | Schema Link                                                          | Description                                                       |
-|--------------------|-------------------------------|----------------------------------------------------------------------|-------------------------------------------------------------------|
-| `StackStateChange` | `orcabus.deploystatusmanager` | [StackStateChange](app/event-schemas/stack-state-change.schema.json) | Emitted after successfully processing a stack state change event. |
+| Name / DetailType  | Source                        | Schema Link                                                                      | Description                                                       |
+|--------------------|-------------------------------|----------------------------------------------------------------------------------|-------------------------------------------------------------------|
+| `StackStateChange` | `orcabus.deploystatusmanager` | [StackStateChange](/app/event-schemas/stack-state-change/2026.06.04/schema.json) | Emitted after successfully processing a stack state change event. |
 
 ### (Internal) Data states & persistence model
 
