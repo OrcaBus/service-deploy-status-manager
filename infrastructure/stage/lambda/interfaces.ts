@@ -27,7 +27,7 @@ export const lambdaNameList: Array<LambdaName> = [
 
 /* We also throw in our custom application interfaces here too */
 export interface LambdaRequirementProps {
-  needsOrcabusTookitLayer?: boolean;
+  needsOrcabusToolkitLayer?: boolean;
   needsSqsEventSource?: boolean;
   needsDurableExecutionPermissions?: boolean;
   needsSfnExecutablePermissions?: boolean;
@@ -46,7 +46,7 @@ export const lambdaToRequirementsMap: LambdaToRequirementsMapType = {
   },
   // Process CFN Event Lambdas
   addStackEvent: {
-    needsOrcabusTookitLayer: true,
+    needsOrcabusToolkitLayer: true,
   },
   getCommitIdFromStack: {
     needsCFDescribePermissions: true,
@@ -55,7 +55,7 @@ export const lambdaToRequirementsMap: LambdaToRequirementsMapType = {
     needsCFDescribePermissions: true,
   },
   getStackOrcabusId: {
-    needsOrcabusTookitLayer: true,
+    needsOrcabusToolkitLayer: true,
   },
   updateCallback: {
     needsCallbackPermissions: true,

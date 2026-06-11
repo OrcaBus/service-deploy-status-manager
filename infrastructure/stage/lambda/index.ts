@@ -46,7 +46,7 @@ function buildLambda(scope: Construct, props: BuildLambdaProps): LambdaObject {
     index: lambdaNameToSnakeCase + '.py',
     handler: 'handler',
     // And if we have a lot of data to process, we need more memory
-    includeOrcabusApiToolsLayer: lambdaRequirements.needsOrcabusTookitLayer,
+    includeOrcabusApiToolsLayer: lambdaRequirements.needsOrcabusToolkitLayer,
     // Dynamodb can take a second to spin up
     timeout: Duration.seconds(10),
     durableConfig: lambdaRequirements.needsDurableExecutionPermissions
