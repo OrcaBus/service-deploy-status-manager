@@ -133,3 +133,26 @@ def get_stack_orcabus_id_from_cfn_stack_id(stack_id: str) -> str:
         raise ValueError(f"Could not find stack id {stack_id} in db")
 
     return stack_obj_list[0].orcabus_id
+
+
+def get_latest_event_for_stack_synced(
+    latest_event_id: str,
+    stack_name: str
+):
+    # Import event data locally
+    from .models.event import EventData
+    event_object = EventData.get(
+        latest_event_id,
+        range_key=stack_name,
+    )
+
+    # Return non-null outputs
+    return dict(filter(
+        lambda kv_iter_: kv_iter_[1] is not None,
+        {
+            "eventOrcabusId": event_object.orcabus_id,
+            "status": event_object.status,
+            "modificationTimestamp": event_object.modification_timestamp,
+            "gitCommitId": (event_object.git_commit_id if event_object.git_commit_id is not None else None),
+        }.items()
+    ))
