@@ -93,7 +93,7 @@ def handler(event, context: DurableContext):
 
     # Not sure what this will look like from the sqs event source
     for record in event.get("Records", []):
-        record_body = json.loads(record.get("body", {}))
+        record_body = json.loads(record.get("body", "{}"))
 
         handle_sfn_execution(
             record_body,

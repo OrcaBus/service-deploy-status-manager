@@ -149,7 +149,10 @@ Infrastructure is managed via CDK. This template provides two types of CDK entry
 
 **Step Functions**
 
-- **`DeployStatusEventProcessor`** - Step Functions state machine that processes deployment events.
+- **`AddCfEventToSqsQueue`** - Because our event rules are in a different stack to our sqs queue, we have to use another service to parse 
+    data between the rule and the queue.
+
+- **`ProcessCfEvent`** - Step Functions state machine that processes deployment events.
   - This state machine is triggered by the `DeployStatusEventHandler` Lambda function and is responsible for orchestrating the processing of deployment events, including any necessary retries and error handling.
   - Using Step Functions allows us to manage complex event processing logic and ensure that events are processed reliably, even in the face of transient errors or failures.
   - We call the following lambdas inside the AWS Step Functions:
@@ -161,9 +164,6 @@ Infrastructure is managed via CDK. This template provides two types of CDK entry
 - **`CloudFormationEventRule`** - EventBridge rule that filters for CloudFormation events related to stack creation, update, and deletion.
   - This rule triggers the `DeployStatusEventHandler` Lambda function whenever a relevant CloudFormation event occurs, ensuring that the service maintains an up-to-date inventory of all deployed services and their deployment status.
 
-**Miscell Service Glue**
-
-- Sqs Event Source to link the `DeployStatusEventHandler` Lambda function to the `DeployStatusSqsQueue` SQS queue, ensuring that any failed events are captured and can be reprocessed as needed.
 
 ### CDK Commands
 
