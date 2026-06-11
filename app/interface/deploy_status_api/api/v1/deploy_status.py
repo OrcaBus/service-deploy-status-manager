@@ -181,6 +181,13 @@ async def list_events_for_stack(
             events_list
         ))
 
+    # Order by timestamp-desc
+    # orcabus_id ulid is timestamp specific
+    events_list.sort(
+        key=lambda x: x.orcabus_id,
+        reverse=True
+    )
+
     return EventQueryPaginatedResponse.from_results_list(
         results=list(map(
             lambda event_iter_: event_iter_.to_dict(),
