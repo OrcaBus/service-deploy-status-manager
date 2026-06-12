@@ -1,7 +1,7 @@
 # Standard imports
 from typing import (
     TypedDict,
-    Union
+    Union, NotRequired
 )
 from datetime import datetime
 
@@ -16,7 +16,7 @@ class StackSummaryResponseWithCfnOutputDict(TypedDict):
     stackName: str
     status: CloudFormationStackStatusWithCfnOutputType
     modificationTimestamp: datetime
-    gitCommitId: str
+    gitCommitId: NotRequired[str]
 
 
 class StackSummaryResponseWithoutCfnOutputDict(TypedDict):
