@@ -1,7 +1,8 @@
 # Standard imports
 from typing import (
     TypedDict,
-    Union, NotRequired
+    Union,
+    NotRequired
 )
 from datetime import datetime
 
