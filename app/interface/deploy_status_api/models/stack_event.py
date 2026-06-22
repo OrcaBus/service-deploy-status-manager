@@ -11,28 +11,19 @@ These models are also returned when collecting stack summaries
 # Standard imports
 import typing
 from typing import (
-    List,
     Optional,
-    ClassVar,
     TypedDict,
-    Union
+    Union,
+    NotRequired
 )
-from os import environ
 from datetime import datetime
 
 # API imports
-from dyntastic import Dyntastic
-from fastapi.encoders import jsonable_encoder
-from pydantic import Field, BaseModel, ConfigDict
-
-# Layer imports
-from fastapi_tools import QueryPaginatedResponse
+from pydantic import BaseModel, ConfigDict
 
 # Local imports
-from ..globals import EVENT_PREFIX
 from ..utils import (
-    to_camel, get_ulid,
-    get_deploy_status_endpoint_url
+    to_camel,
 )
 from . import (
     CloudFormationStackStatusType,
@@ -49,7 +40,7 @@ class StackEventResponseWithCfnOutputDict(TypedDict):
     eventId: str
     status: CloudFormationStackStatusWithCfnOutputType
     modificationTimestamp: datetime
-    gitCommitId: str
+    gitCommitId: NotRequired[str]
 
 
 class StackEventResponseWithoutCfnOutputDict(TypedDict):

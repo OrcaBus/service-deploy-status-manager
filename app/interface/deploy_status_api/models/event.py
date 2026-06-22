@@ -15,6 +15,7 @@ from typing import (
     Dict,
     Any,
     Self,
+    NotRequired,
 )
 from os import environ
 from datetime import datetime
@@ -46,7 +47,7 @@ class EventResponseWithCfnOutputDict(TypedDict):
     stackName: str
     status: CloudFormationStackStatusWithCfnOutputType
     modificationTimestamp: datetime
-    gitCommitId: str
+    gitCommitId: NotRequired[str]
 
 
 class EventResponseWithoutCfnOutputDict(TypedDict):
