@@ -7,25 +7,25 @@
 
 ## Infrastructure (TypeScript)
 
-| Tool / Library | Purpose |
-|---|---|
-| AWS CDK (`aws-cdk-lib` 2.258.x) | Infrastructure as Code |
-| `@aws-cdk/aws-lambda-python-alpha` | Python Lambda bundling |
+| Tool / Library                     | Purpose                                                                        |
+| ---------------------------------- | ------------------------------------------------------------------------------ |
+| AWS CDK (`aws-cdk-lib` 2.258.x)    | Infrastructure as Code                                                         |
+| `@aws-cdk/aws-lambda-python-alpha` | Python Lambda bundling                                                         |
 | `@orcabus/platform-cdk-constructs` | Shared OrcaBus CDK constructs (GitStack, API Gateway config, event bus config) |
-| `cdk-nag` | CDK compliance / security checks |
-| `sqs-dlq-monitoring` | SQS dead-letter queue monitoring |
+| `cdk-nag`                          | CDK compliance / security checks                                               |
+| `sqs-dlq-monitoring`               | SQS dead-letter queue monitoring                                               |
 
 ## Application (Python)
 
-| Library | Purpose |
-|---|---|
-| FastAPI | REST API framework |
-| Mangum | AWS Lambda adapter for ASGI (FastAPI → Lambda) |
-| Pydantic | Data validation and serialization |
-| Dyntastic | DynamoDB ORM built on Pydantic |
-| `fastapi_tools` | Shared pagination utilities (Lambda layer) |
+| Library                            | Purpose                                        |
+| ---------------------------------- | ---------------------------------------------- |
+| FastAPI                            | REST API framework                             |
+| Mangum                             | AWS Lambda adapter for ASGI (FastAPI → Lambda) |
+| Pydantic                           | Data validation and serialization              |
+| Dyntastic                          | DynamoDB ORM built on Pydantic                 |
+| `fastapi_tools`                    | Shared pagination utilities (Lambda layer)     |
 | `aws-durable-execution-sdk-python` | Durable Lambda execution with callback support |
-| boto3 | AWS SDK for Python |
+| boto3                              | AWS SDK for Python                             |
 
 ## Package Management
 
@@ -35,12 +35,12 @@
 
 ## Linting & Formatting
 
-| Tool | Scope | Config |
-|---|---|---|
-| ESLint (v10, flat config) | TypeScript/JS (`eslint.config.mjs`) | `app/` excluded — has own config |
-| Prettier | All files (`.prettierrc.json`) | 100 char width, single quotes, 2-space indent, trailing comma es5 |
-| pre-commit | Git hooks (`.pre-commit-config.yaml`) | Runs: large file check, YAML check, AWS cred detection, secret detection, ESLint, Prettier |
-| detect-secrets | Secret scanning | Baseline in `.secrets.baseline` |
+| Tool                      | Scope                                 | Config                                                                                     |
+| ------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------ |
+| ESLint (v10, flat config) | TypeScript/JS (`eslint.config.mjs`)   | `app/` excluded — has own config                                                           |
+| Prettier                  | All files (`.prettierrc.json`)        | 100 char width, single quotes, 2-space indent, trailing comma es5                          |
+| pre-commit                | Git hooks (`.pre-commit-config.yaml`) | Runs: large file check, YAML check, AWS cred detection, secret detection, ESLint, Prettier |
+| detect-secrets            | Secret scanning                       | Baseline in `.secrets.baseline`                                                            |
 
 ## Testing
 

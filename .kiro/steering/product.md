@@ -8,7 +8,8 @@ The Deploy Status Manager is a microservice within the OrcaBus platform that tra
 
 - **Organization**: University of Melbourne Centre for Cancer Research (UMCCR)
 - **Platform**: OrcaBus — a suite of bioinformatics orchestration microservices
-- **URL**: https://deploy-status.umccr.org
+- **URL**: https://deploy-status.umccr.org (public/browser endpoint)
+- **API host**: https://deploy-status.prod.umccr.org (the resolvable prod API host used for tooling; the bare `deploy-status.umccr.org` does not resolve from all networks)
 
 ## Core Functionality
 
