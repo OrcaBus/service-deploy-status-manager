@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Weekly Deploy Report Reminder",
+      "trigger": "SessionStart",
+      "description": "On session start, nudge to generate the weekly OrcaBus production deployment report if none exists for the current ISO week.",
+      "action": {
+        "type": "command",
+        "command": "bash \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.kiro/skills/weekly-deploy-report/scripts/check_due.sh\"",
+        "timeout": 30
+      }
+    }
+  ]
+}
