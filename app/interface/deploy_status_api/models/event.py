@@ -146,7 +146,7 @@ class EventData(EventWithId, Dyntastic):
         return jsonable_encoder(
             EventResponse(
                 **model_dump
-            ).model_dump(by_alias=True)
+            ).model_dump(by_alias=True, exclude_none=True)
         )
 
 
