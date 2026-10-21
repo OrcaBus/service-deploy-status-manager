@@ -291,6 +291,16 @@ REPO_OVERRIDES: dict[str, str] = {
     "DataSharing": "service-data-sharing-manager",
     # "PdxService" stacks are the PierianDx TSO500 ctDNA pipeline manager.
     "PdxService": "service-pieriandx-tso500-ctdna-pipeline-manager",
+    # Pipeline managers whose stack tokens don't match the kebab guess. Verified
+    # against the live github.com/OrcaBus repo list (main HEADs match the
+    # deployed commits reported by deploy-status).
+    "-BclconvertInteropQc-Microservice": "service-bclconvert-interop-qc-pipeline-manager",
+    "ArribaWgtsRnaPipeline": "service-arriba-wgts-rna-pipeline-manager",
+    "BSSHToAWSS3Copy": "service-bssh-to-aws-s3-copy-manager",
+    "BclConvert": "service-bclconvert-manager",
+    "DragenWgtsRnaPipeline": "service-dragen-wgts-rna-pipeline-manager",
+    "FastqUnarchiving": "service-fastq-unarchiving-manager",
+    "RnasumPipeline": "service-rnasum-pipeline-manager",
     # Intentionally unmapped (no confirmed GitStack repo yet) — these surface in
     # the report's "Needs attention" section rather than being mis-attributed:
     #   PostgresManager, AuthorizationManager, StepsS3Copy
